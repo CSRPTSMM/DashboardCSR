@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Dashboard Performance Departemen CSR dari workbook lokal OneDrive" />
+    <title>Dashboard Performance CSR</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">CSR PERFORMANCE CONTROL</p>
+        <h1>Dashboard Departemen CSR</h1>
+      </div>
+      <div class="topbar-actions">
+        <span id="fileStatus" class="file-status">Belum ada file terhubung</span>
+        <button id="refreshBtn" class="button secondary" type="button" hidden>Perbarui data</button>
+        <button id="fileBtn" class="button primary" type="button">Pilih file utama</button>
+        <input id="fallbackFileInput" type="file" accept=".xlsm" hidden />
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section id="welcomePanel" class="welcome-card">
+        <p class="eyebrow">TANPA POWERSHELL • TANPA MICROSOFT ENTRA</p>
+        <h2>Hubungkan workbook utama langsung dari folder OneDrive</h2>
+        <p>Dashboard membaca <strong>Monitoring Departemen CSR.xlsm</strong> yang sudah tersinkron di komputer. KPI dihitung langsung di browser; workbook dan data kantor tidak diunggah ke GitHub.</p>
+        <ol class="welcome-steps">
+          <li>Pastikan <strong>Monitoring Departemen CSR.xlsm</strong> tersinkron di folder OneDrive lokal.</li>
+          <li>Setelah mengubah data, cukup simpan workbook utama di Excel.</li>
+          <li>Klik <strong>Pilih file utama</strong>, kemudian pilih <strong>Monitoring Departemen CSR.xlsm</strong>.</li>
+        </ol>
+        <p id="browserNote" class="browser-note"></p>
+      </section>
+
+      <section id="dashboard" hidden>
+        <div id="message" class="message" role="status" hidden></div>
+
+        <section class="filter-card" aria-label="Filter dashboard">
+          <label>Tahun<select id="yearFilter"></select></label>
+          <label>Bulan<select id="monthFilter"></select></label>
+          <label>Departemen<select id="departmentFilter"></select></label>
+          <label>Kategori<select id="categoryFilter"></select></label>
+          <label class="search-label">Cari KPI<input id="searchFilter" type="search" placeholder="Nama KPI atau PIC" /></label>
+        </section>
+
+        <section class="kpi-grid" aria-label="Ringkasan kinerja">
+          <article class="kpi-card"><span>Skor Performance</span><strong id="overallScore">–</strong><small>Rata-rata tertimbang</small></article>
+          <article class="kpi-card"><span>KPI Tercapai</span><strong id="achievedCount">–</strong><small>Capaian ≥ 100%</small></article>
+          <article class="kpi-card"><span>Perlu Tindakan</span><strong id="actionCount">–</strong><small>Capaian &lt; 90%</small></article>
+          <article class="kpi-card"><span>Data Terakhir</span><strong id="lastUpdate">–</strong><small id="fileName">File lokal OneDrive</small></article>
+        </section>
+
+        <section class="chart-grid">
+          <article class="panel wide"><div class="panel-heading"><h2>Tren Performance</h2><span>Per periode</span></div><div class="chart-box"><canvas id="trendChart"></canvas></div></article>
+          <article class="panel"><div class="panel-heading"><h2>Status KPI</h2><span>Komposisi</span></div><div class="chart-box"><canvas id="statusChart"></canvas></div></article>
+          <article class="panel"><div class="panel-heading"><h2>Skor per Kategori</h2><span>Perbandingan area kerja</span></div><div class="chart-box"><canvas id="departmentChart"></canvas></div></article>
+        </section>
+
+        <section class="panel table-panel">
+          <div class="panel-heading"><h2>Detail KPI</h2><span id="rowCount">0 data</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Periode</th><th>Departemen</th><th>KPI</th><th>Target</th><th>Aktual</th><th>Capaian</th><th>Status</th><th>PIC</th></tr></thead>
+              <tbody id="detailBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div id="loading" class="loading" hidden><div class="spinner"></div><span>Membaca file Excel…</span></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

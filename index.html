@@ -1,462 +1,77 @@
 <!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <meta
-    name="description"
-    content="Portal Dashboard Monitoring Program dan Budget Departemen CSR PT Suprabari Mapanindo Mineral"
-  />
-
-  <title>Dashboard Monitoring CSR | PT SMM</title>
-
-  <style>
-    :root {
-      --navy: #102a43;
-      --blue: #1769aa;
-      --blue-light: #eaf4fc;
-      --green: #16835d;
-      --white: #ffffff;
-      --background: #f4f7fa;
-      --text: #243b53;
-      --muted: #627d98;
-      --border: #d9e2ec;
-      --shadow: 0 18px 45px rgba(16, 42, 67, 0.13);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family:
-        Inter, "Segoe UI", Roboto, Arial, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(
-          circle at top right,
-          rgba(23, 105, 170, 0.14),
-          transparent 34%
-        ),
-        linear-gradient(180deg, #eef5fa 0%, var(--background) 100%);
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      padding: 18px clamp(24px, 6vw, 90px);
-      color: var(--white);
-      background: rgba(16, 42, 67, 0.97);
-      border-bottom: 3px solid var(--blue);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .brand-mark {
-      display: grid;
-      place-items: center;
-      width: 48px;
-      height: 48px;
-      flex-shrink: 0;
-      color: var(--navy);
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      background: var(--white);
-      border-radius: 12px;
-    }
-
-    .brand p,
-    .brand h1 {
-      margin: 0;
-    }
-
-    .brand p {
-      margin-bottom: 3px;
-      color: #b9d9ef;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-    }
-
-    .brand h1 {
-      font-size: clamp(17px, 2vw, 23px);
-      line-height: 1.2;
-    }
-
-    .access-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 14px;
-      color: #d8f3e9;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(22, 131, 93, 0.23);
-      border: 1px solid rgba(216, 243, 233, 0.25);
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-
-    .status-dot {
-      width: 9px;
-      height: 9px;
-      background: #46d6a0;
-      border-radius: 50%;
-      box-shadow: 0 0 0 4px rgba(70, 214, 160, 0.14);
-    }
-
-    main {
-      display: grid;
-      align-items: center;
-      min-height: calc(100vh - 135px);
-      padding: clamp(36px, 6vw, 78px) clamp(20px, 6vw, 90px);
-    }
-
-    .portal-card {
-      display: grid;
-      grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
-      width: min(1120px, 100%);
-      margin: 0 auto;
-      overflow: hidden;
-      background: var(--white);
-      border: 1px solid rgba(217, 226, 236, 0.85);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-    }
-
-    .content {
-      padding: clamp(34px, 5vw, 70px);
-    }
-
-    .eyebrow {
-      margin: 0 0 13px;
-      color: var(--blue);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 1.7px;
-    }
-
-    .content h2 {
-      max-width: 720px;
-      margin: 0;
-      color: var(--navy);
-      font-size: clamp(32px, 5vw, 54px);
-      line-height: 1.08;
-      letter-spacing: -1.5px;
-    }
-
-    .description {
-      max-width: 670px;
-      margin: 24px 0 30px;
-      color: var(--muted);
-      font-size: 17px;
-      line-height: 1.75;
-    }
-
-    .dashboard-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      min-height: 54px;
-      padding: 15px 24px;
-      color: var(--white);
-      font-size: 15px;
-      font-weight: 750;
-      text-decoration: none;
-      background: linear-gradient(135deg, var(--blue), #0c4f87);
-      border: 0;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(23, 105, 170, 0.27);
-      transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-    }
-
-    .dashboard-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 30px rgba(23, 105, 170, 0.34);
-    }
-
-    .dashboard-button:focus-visible {
-      outline: 3px solid rgba(23, 105, 170, 0.3);
-      outline-offset: 4px;
-    }
-
-    .arrow {
-      font-size: 19px;
-      transition: transform 0.2s ease;
-    }
-
-    .dashboard-button:hover .arrow {
-      transform: translateX(3px);
-    }
-
-    .login-note {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      max-width: 650px;
-      margin: 22px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.55;
-    }
-
-    .lock {
-      flex-shrink: 0;
-      font-size: 16px;
-    }
-
-    .information-panel {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: clamp(30px, 4vw, 52px);
-      color: var(--white);
-      background:
-        linear-gradient(
-          155deg,
-          rgba(23, 105, 170, 0.96),
-          rgba(16, 42, 67, 0.99)
-        );
-    }
-
-    .information-panel h3 {
-      margin: 0 0 24px;
-      font-size: 20px;
-    }
-
-    .feature-list {
-      display: grid;
-      gap: 18px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .feature-list li {
-      display: grid;
-      grid-template-columns: 38px 1fr;
-      gap: 13px;
-      align-items: start;
-    }
-
-    .feature-icon {
-      display: grid;
-      place-items: center;
-      width: 38px;
-      height: 38px;
-      color: #d9efff;
-      font-weight: 800;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 10px;
-    }
-
-    .feature-list strong,
-    .feature-list span {
-      display: block;
-    }
-
-    .feature-list strong {
-      margin-bottom: 4px;
-      font-size: 14px;
-    }
-
-    .feature-list span {
-      color: #c9dbea;
-      font-size: 12px;
-      line-height: 1.55;
-    }
-
-    footer {
-      padding: 18px 24px 24px;
-      color: var(--muted);
-      font-size: 12px;
-      text-align: center;
-    }
-
-    @media (max-width: 820px) {
-      .topbar {
-        align-items: flex-start;
-        padding: 17px 20px;
-      }
-
-      .access-badge {
-        display: none;
-      }
-
-      main {
-        min-height: auto;
-        padding: 28px 16px 36px;
-      }
-
-      .portal-card {
-        grid-template-columns: 1fr;
-        border-radius: 18px;
-      }
-
-      .content {
-        padding: 38px 26px;
-      }
-
-      .content h2 {
-        font-size: clamp(31px, 10vw, 44px);
-      }
-
-      .description {
-        font-size: 15px;
-      }
-
-      .dashboard-button {
-        width: 100%;
-      }
-
-      .information-panel {
-        padding: 34px 26px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .brand-mark {
-        width: 42px;
-        height: 42px;
-        font-size: 15px;
-      }
-
-      .brand h1 {
-        font-size: 16px;
-      }
-
-      .brand p {
-        font-size: 9px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-mark" aria-hidden="true">CSR</div>
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Dashboard Monitoring Program dan Budget Departemen CSR" />
+    <title>Dashboard Monitoring CSR</title>
+  </head>
+  <body>
+    <header class="topbar">
       <div>
-        <p>PT SUPRABARI MAPANINDO MINERAL</p>
-        <h1>Dashboard Departemen CSR</h1>
+        <p class="eyebrow">CSR PROGRAM &amp; BUDGET CONTROL</p>
+        <h1>Dashboard Monitoring CSR</h1>
       </div>
-    </div>
-
-    <div class="access-badge">
-      <span class="status-dot" aria-hidden="true"></span>
-      Akses internal perusahaan
-    </div>
-  </header>
-
-  <main>
-    <section class="portal-card">
-      <div class="content">
-        <p class="eyebrow">CSR PERFORMANCE CONTROL</p>
-
-        <h2>Monitoring Program dan Budget CSR</h2>
-
-        <p class="description">
-          Portal untuk mengakses dashboard monitoring program, realisasi
-          anggaran, serapan budget, status pelaksanaan, serta rincian program
-          CSR PT Suprabari Mapanindo Mineral.
-        </p>
-
-        <a
-          class="dashboard-button"
-          href="https://app.powerbi.com/groups/me/reports/b5f84d83-f96c-4341-8344-63a53eba5b12/7be2482a0e00734d0159?experience=power-bi"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Buka Dashboard Monitoring CSR di Power BI"
-        >
-          Buka Dashboard Power BI
-          <span class="arrow" aria-hidden="true">→</span>
-        </a>
-
-        <p class="login-note">
-          <span class="lock" aria-hidden="true">🔒</span>
-          <span>
-            Dashboard akan dibuka pada tab baru. Pengguna harus masuk
-            menggunakan akun Microsoft perusahaan dan memiliki izin untuk
-            mengakses laporan Power BI.
-          </span>
-        </p>
+      <div class="topbar-actions">
+        <span id="fileStatus" class="file-status">Belum ada file terhubung</span>
+        <button id="refreshBtn" class="button secondary" type="button" hidden>Perbarui data</button>
+        <button id="fileBtn" class="button primary" type="button">Pilih file utama</button>
+        <input id="fallbackFileInput" type="file" accept=".xlsm,.xlsx" hidden />
       </div>
+    </header>
 
-      <aside class="information-panel">
-        <h3>Informasi dalam dashboard</h3>
+    <main class="page-shell">
+      <section id="welcomePanel" class="welcome-card">
+        <p class="eyebrow">TANPA POWERSHELL • TANPA MICROSOFT ENTRA</p>
+        <h2>Tampilkan data program dan budget langsung di website</h2>
+        <p>Dashboard membaca sheet <strong>Program CSR</strong> dari <strong>Monitoring Departemen CSR.xlsm</strong> yang tersinkron di komputer. Data diproses di browser dan tidak diunggah ke GitHub.</p>
+        <ol class="welcome-steps">
+          <li>Pastikan <strong>Monitoring Departemen CSR.xlsm</strong> tersinkron di folder OneDrive lokal.</li>
+          <li>Setelah mengubah data, cukup simpan workbook utama di Excel.</li>
+          <li>Klik <strong>Pilih file utama</strong>, kemudian pilih <strong>Monitoring Departemen CSR.xlsm</strong>.</li>
+        </ol>
+        <p id="browserNote" class="browser-note"></p>
+      </section>
 
-        <ul class="feature-list">
-          <li>
-            <div class="feature-icon" aria-hidden="true">01</div>
-            <div>
-              <strong>Monitoring Program</strong>
-              <span>
-                Memantau jumlah, lokasi, PIC, pilar, dan status setiap program.
-              </span>
-            </div>
-          </li>
+      <section id="dashboard" hidden>
+        <div id="message" class="message" role="status" hidden></div>
 
-          <li>
-            <div class="feature-icon" aria-hidden="true">02</div>
-            <div>
-              <strong>Kontrol Anggaran</strong>
-              <span>
-                Melihat total budget, realisasi, dan tingkat serapan anggaran.
-              </span>
-            </div>
-          </li>
+        <section class="filter-card" aria-label="Filter dashboard">
+          <label>Tahun<select id="yearFilter"></select></label>
+          <label>Pilar CSR<select id="pillarFilter"></select></label>
+          <label>Lokasi/Desa<select id="locationFilter"></select></label>
+          <label>PIC<select id="picFilter"></select></label>
+          <label>Status<select id="statusFilter"></select></label>
+          <label class="search-label">Cari Program<input id="searchFilter" type="search" placeholder="Nama program, ID, lokasi, atau PIC" /></label>
+        </section>
 
-          <li>
-            <div class="feature-icon" aria-hidden="true">03</div>
-            <div>
-              <strong>Filter Interaktif</strong>
-              <span>
-                Menyaring data berdasarkan tahun, pilar, desa, PIC, dan status.
-              </span>
-            </div>
-          </li>
+        <section class="kpi-grid" aria-label="Ringkasan kinerja">
+              <article class="kpi-card"><span>Jumlah Program</span><strong id="programCount">–</strong><small>Program sesuai filter</small></article>
+              <article class="kpi-card"><span>Total Budget</span><strong id="budgetTotal">–</strong><small>Rencana anggaran program</small></article>
+              <article class="kpi-card"><span>Realisasi</span><strong id="realizationTotal">–</strong><small id="absorptionRate">Serapan –</small></article>
+              <article class="kpi-card alert-card"><span>Program Terlambat</span><strong id="overdueCount">–</strong><small>Memerlukan perhatian</small></article>
+              <article class="kpi-card"><span>Data Terakhir</span><strong id="lastUpdate">–</strong><small id="fileName">File lokal OneDrive</small></article>
+        </section>
 
-          <li>
-            <div class="feature-icon" aria-hidden="true">04</div>
-            <div>
-              <strong>Data Terpusat</strong>
-              <span>
-                Penyajian data dikelola melalui laporan Power BI perusahaan.
-              </span>
-            </div>
-          </li>
-        </ul>
-      </aside>
-    </section>
-  </main>
+        <section class="chart-grid">
+              <article class="panel wide"><div class="panel-heading"><h2>Budget dan Realisasi Berdasarkan Pilar</h2><span>Dalam rupiah</span></div><div class="chart-box"><canvas id="budgetChart"></canvas></div></article>
+              <article class="panel"><div class="panel-heading"><h2>Status Program</h2><span>Komposisi</span></div><div class="chart-box"><canvas id="statusChart"></canvas></div></article>
+              <article class="panel"><div class="panel-heading"><h2>Jumlah Program Berdasarkan Desa/Lokasi</h2><span>10 lokasi terbanyak</span></div><div class="chart-box"><canvas id="locationChart"></canvas></div></article>
+        </section>
 
-  <footer>
-    © <span id="currentYear"></span> PT Suprabari Mapanindo Mineral —
-    Departemen CSR
-  </footer>
+        <section class="panel table-panel">
+              <div class="panel-heading"><h2>Detail Program CSR</h2><span id="rowCount">0 data</span></div>
+          <div class="table-wrap">
+            <table>
+                  <thead><tr><th>ID</th><th>Program</th><th>Pilar</th><th>Lokasi/Desa</th><th>PIC</th><th>Budget</th><th>Realisasi</th><th>Serapan</th><th>Status</th><th>Status Waktu</th></tr></thead>
+              <tbody id="detailBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
 
-  <script>
-    document.getElementById("currentYear").textContent =
-      new Date().getFullYear();
-  </script>
-</body>
+    <div id="loading" class="loading" hidden><div class="spinner"></div><span>Membaca file Excel…</span></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>

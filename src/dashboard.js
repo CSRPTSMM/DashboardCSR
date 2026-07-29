@@ -1,131 +1,133 @@
 import Chart from 'chart.js/auto';
-import { APP_CONFIG } from './config.js';
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 const charts = {};
 let allRecords = [];
-
-const element = (id) => document.getElementById(id);
+const el = (id) => document.getElementById(id);
 const filters = {
-  year: element('yearFilter'),
-  month: element('monthFilter'),
-  department: element('departmentFilter'),
-  category: element('categoryFilter'),
-  search: element('searchFilter'),
+  year: el('yearFilter'),
+  pillar: el('pillarFilter'),
+  location: el('locationFilter'),
+  pic: el('picFilter'),
+  status: el('statusFilter'),
+  search: el('searchFilter'),
 };
 
-function unique(values) { return [...new Set(values.filter(Boolean))]; }
-function escapeHtml(value) {
-  return String(value ?? '').replace(/[&<>"]/g, (character) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
-  })[character]);
-}
-function option(value, label = value) { return `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`; }
+const escapeHtml = (value) => String(value ?? '').replace(/[&<>"]/g, (character) => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
+})[character]);
+const unique = (values) => [...new Set(values.filter((value) => value !== null && value !== ''))];
+const option = (value, label = value) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`;
+const rupiah = (value) => new Intl.NumberFormat('id-ID', {
+  style: 'currency', currency: 'IDR', maximumFractionDigits: 0,
+}).format(value || 0);
+const percent = (value) => `${new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 }).format(value || 0)}%`;
+const isOverdue = (record) => /overdue|terlambat/i.test(record.timeStatus);
 
-function weightedScore(records) {
-  const valid = records.filter((r) => Number.isFinite(r.achievement));
-  const weight = valid.reduce((sum, r) => sum + (r.weight > 0 ? r.weight : 1), 0);
-  if (!weight) return null;
-  return valid.reduce((sum, r) => sum + r.achievement * (r.weight > 0 ? r.weight : 1), 0) / weight;
-}
-
-function scoreStatus(score) {
-  if (score >= APP_CONFIG.thresholds.achieved) return { label: 'Tercapai', className: 'good' };
-  if (score >= APP_CONFIG.thresholds.warning) return { label: 'Perlu Perhatian', className: 'warning' };
-  return { label: 'Belum Tercapai', className: 'bad' };
+function populate(select, values, allLabel) {
+  select.innerHTML = option('ALL', allLabel)
+    + unique(values).sort((a, b) => String(a).localeCompare(String(b), 'id')).map((value) => option(value)).join('');
 }
 
 function populateFilters(records) {
-  const periods = unique(records.map((r) => r.period)).sort();
-  const latest = periods.at(-1);
-  const years = unique(periods.map((p) => p.slice(0, 4))).sort().reverse();
-  filters.year.innerHTML = option('ALL', 'Semua tahun') + years.map((y) => option(y)).join('');
-  filters.month.innerHTML = option('ALL', 'Semua bulan') + MONTHS.map((m, i) => option(String(i + 1).padStart(2, '0'), m)).join('');
-  filters.department.innerHTML = option('ALL', 'Semua departemen') + unique(records.map((r) => r.department)).sort().map((v) => option(v)).join('');
-  filters.category.innerHTML = option('ALL', 'Semua kategori') + unique(records.map((r) => r.category)).sort().map((v) => option(v)).join('');
-  if (latest) {
-    filters.year.value = latest.slice(0, 4);
-    filters.month.value = latest.slice(5, 7);
-  }
+  populate(filters.year, records.map((r) => r.year), 'Semua tahun');
+  populate(filters.pillar, records.map((r) => r.pillar), 'Semua pilar');
+  populate(filters.location, records.map((r) => r.location), 'Semua lokasi');
+  populate(filters.pic, records.map((r) => r.pic), 'Semua PIC');
+  populate(filters.status, records.map((r) => r.status), 'Semua status');
+  const years = unique(records.map((r) => r.year)).sort((a, b) => b - a);
+  if (years.length) filters.year.value = String(years[0]);
 }
 
 function filteredRecords() {
-  const search = filters.search.value.trim().toLowerCase();
+  const search = filters.search.value.trim().toLocaleLowerCase('id');
   return allRecords.filter((record) =>
-    (filters.year.value === 'ALL' || record.period.startsWith(filters.year.value)) &&
-    (filters.month.value === 'ALL' || record.period.endsWith(`-${filters.month.value}`)) &&
-    (filters.department.value === 'ALL' || record.department === filters.department.value) &&
-    (filters.category.value === 'ALL' || record.category === filters.category.value) &&
-    (!search || `${record.kpi} ${record.pic} ${record.note}`.toLowerCase().includes(search))
+    (filters.year.value === 'ALL' || String(record.year) === filters.year.value)
+    && (filters.pillar.value === 'ALL' || record.pillar === filters.pillar.value)
+    && (filters.location.value === 'ALL' || record.location === filters.location.value)
+    && (filters.pic.value === 'ALL' || record.pic === filters.pic.value)
+    && (filters.status.value === 'ALL' || record.status === filters.status.value)
+    && (!search || `${record.id} ${record.name} ${record.location} ${record.pic}`.toLocaleLowerCase('id').includes(search))
   );
 }
 
-function groupScores(records, key) {
-  const groups = new Map();
+function group(records, key) {
+  const result = new Map();
   records.forEach((record) => {
-    const value = record[key];
-    if (!groups.has(value)) groups.set(value, []);
-    groups.get(value).push(record);
+    if (!result.has(record[key])) result.set(record[key], []);
+    result.get(record[key]).push(record);
   });
-  return [...groups.entries()].map(([label, values]) => ({ label, score: weightedScore(values) ?? 0 })).sort((a, b) => a.label.localeCompare(b.label));
+  return result;
 }
 
 function drawChart(id, config) {
   charts[id]?.destroy();
-  charts[id] = new Chart(element(id), config);
-}
-
-function formatNumber(value) {
-  return Number.isFinite(value) ? new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 }).format(value) : '–';
-}
-
-function formatValue(value, unit) {
-  if (!Number.isFinite(value)) return '–';
-  if (/^(rp|idr)$/i.test(unit)) return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
-  return `${formatNumber(value)}${unit === '%' ? '%' : unit ? ` ${unit}` : ''}`;
+  charts[id] = new Chart(el(id), config);
 }
 
 function renderCards(records) {
-  const score = weightedScore(records);
-  element('overallScore').textContent = score === null ? '–' : `${formatNumber(score)}%`;
-  element('achievedCount').textContent = records.filter((r) => r.achievement >= APP_CONFIG.thresholds.achieved).length;
-  element('actionCount').textContent = records.filter((r) => r.achievement < APP_CONFIG.thresholds.warning).length;
+  const budget = records.reduce((sum, r) => sum + r.budget, 0);
+  const realization = records.reduce((sum, r) => sum + r.realization, 0);
+  el('programCount').textContent = records.length;
+  el('budgetTotal').textContent = rupiah(budget);
+  el('realizationTotal').textContent = rupiah(realization);
+  el('absorptionRate').textContent = `Serapan ${percent(budget > 0 ? realization / budget * 100 : 0)}`;
+  el('overdueCount').textContent = records.filter(isOverdue).length;
 }
 
 function renderCharts(records) {
-  const trend = groupScores(records, 'period');
-  drawChart('trendChart', {
-    type: 'line',
-    data: { labels: trend.map((x) => x.label), datasets: [{ label: 'Skor', data: trend.map((x) => x.score), borderColor: '#2367d1', backgroundColor: 'rgba(35,103,209,.12)', fill: true, tension: .32 }] },
-    options: { maintainAspectRatio: false, scales: { y: { suggestedMin: 0, suggestedMax: 120, ticks: { callback: (v) => `${v}%` } } }, plugins: { legend: { display: false } } },
+  const byPillar = [...group(records, 'pillar')];
+  drawChart('budgetChart', {
+    type: 'bar',
+    data: {
+      labels: byPillar.map(([label]) => label),
+      datasets: [
+        { label: 'Budget', data: byPillar.map(([, rows]) => rows.reduce((s, r) => s + r.budget, 0)), backgroundColor: '#2f6fdd', borderRadius: 6 },
+        { label: 'Realisasi', data: byPillar.map(([, rows]) => rows.reduce((s, r) => s + r.realization, 0)), backgroundColor: '#20a06b', borderRadius: 6 },
+      ],
+    },
+    options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: (v) => `Rp${Intl.NumberFormat('id-ID', { notation: 'compact' }).format(v)}` } } } },
   });
 
-  const statuses = ['Tercapai', 'Perlu Perhatian', 'Belum Tercapai'];
-  const counts = statuses.map((status) => records.filter((r) => scoreStatus(r.achievement).label === status).length);
+  const statuses = [...group(records, 'status')];
   drawChart('statusChart', {
     type: 'doughnut',
-    data: { labels: statuses, datasets: [{ data: counts, backgroundColor: ['#1d9b65', '#efad25', '#d94b5b'], borderWidth: 0 }] },
-    options: { maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom' } } },
+    data: {
+      labels: statuses.map(([label]) => label),
+      datasets: [{ data: statuses.map(([, rows]) => rows.length), backgroundColor: ['#2f6fdd', '#20a06b', '#f2ae2e', '#df5261', '#8b66d9', '#5aa9b7'], borderWidth: 0 }],
+    },
+    options: { maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom' } } },
   });
 
-  const categories = groupScores(records, 'category').sort((a, b) => b.score - a.score);
-  drawChart('departmentChart', {
+  const locations = [...group(records, 'location')]
+    .map(([label, rows]) => ({ label, count: rows.length }))
+    .sort((a, b) => b.count - a.count).slice(0, 10);
+  drawChart('locationChart', {
     type: 'bar',
-    data: { labels: categories.map((x) => x.label), datasets: [{ data: categories.map((x) => x.score), backgroundColor: '#4b85df', borderRadius: 8 }] },
-    options: { indexAxis: 'y', maintainAspectRatio: false, scales: { x: { beginAtZero: true, suggestedMax: 120, ticks: { callback: (v) => `${v}%` } } }, plugins: { legend: { display: false } } },
+    data: { labels: locations.map((x) => x.label), datasets: [{ label: 'Jumlah Program', data: locations.map((x) => x.count), backgroundColor: '#4c86df', borderRadius: 7 }] },
+    options: { indexAxis: 'y', maintainAspectRatio: false, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }, plugins: { legend: { display: false } } },
   });
 }
 
+function statusClass(record) {
+  if (isOverdue(record)) return 'bad';
+  if (/selesai/i.test(record.status)) return 'good';
+  return 'warning';
+}
+
 function renderTable(records) {
-  element('rowCount').textContent = `${records.length} data`;
-  element('detailBody').innerHTML = records.slice(0, 500).map((record) => {
-    const status = scoreStatus(record.achievement);
-    return `<tr>
-      <td>${escapeHtml(record.period)}</td><td>${escapeHtml(record.department)}</td><td><strong>${escapeHtml(record.kpi)}</strong><small>${escapeHtml(record.category)}</small></td>
-      <td>${escapeHtml(formatValue(record.target, record.unit))}</td><td>${escapeHtml(formatValue(record.actual, record.unit))}</td>
-      <td>${Number.isFinite(record.achievement) ? `${formatNumber(record.achievement)}%` : '–'}</td><td><span class="badge ${status.className}">${status.label}</span></td><td>${escapeHtml(record.pic || '–')}</td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="8" class="empty">Tidak ada data sesuai filter.</td></tr>';
+  el('rowCount').textContent = `${records.length} program`;
+  el('detailBody').innerHTML = records.map((record) => `<tr>
+    <td>${escapeHtml(record.id)}</td>
+    <td><strong>${escapeHtml(record.name)}</strong></td>
+    <td>${escapeHtml(record.pillar)}</td>
+    <td>${escapeHtml(record.location)}</td>
+    <td>${escapeHtml(record.pic)}</td>
+    <td>${escapeHtml(rupiah(record.budget))}</td>
+    <td>${escapeHtml(rupiah(record.realization))}</td>
+    <td>${escapeHtml(percent(record.absorption))}</td>
+    <td><span class="badge ${statusClass(record)}">${escapeHtml(record.status)}</span></td>
+    <td><span class="badge ${isOverdue(record) ? 'bad' : 'good'}">${escapeHtml(record.timeStatus)}</span></td>
+  </tr>`).join('') || '<tr><td colspan="10" class="empty">Tidak ada program sesuai filter.</td></tr>';
 }
 
 export function render() {
@@ -138,11 +140,14 @@ export function render() {
 export function setDashboardData(records, metadata) {
   allRecords = records;
   populateFilters(records);
-  element('lastUpdate').textContent = metadata.lastModifiedDateTime
-    ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(metadata.lastModifiedDateTime))
+  const update = metadata.latestDataUpdate || metadata.lastModifiedDateTime;
+  el('lastUpdate').textContent = update
+    ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium' }).format(new Date(update))
     : '–';
-  element('fileName').textContent = metadata.name ?? 'Sumber OneDrive';
+  el('fileName').textContent = metadata.name || 'Sumber OneDrive';
   render();
 }
 
-Object.values(filters).forEach((filter) => filter.addEventListener(filter.type === 'search' ? 'input' : 'change', render));
+Object.values(filters).forEach((filter) => {
+  filter.addEventListener(filter.type === 'search' ? 'input' : 'change', render);
+});

@@ -65,7 +65,7 @@ export async function chooseWorkbook() {
     types: [{
       description: 'Monitoring Departemen CSR',
       accept: {
-        'application/vnd.ms-excel.sheet.macroEnabled.12': ['.xlsm'],
+        'application/vnd.ms-excel.sheet.macroEnabled.12': ['.xlsm', '.xlsx'],
       },
     }],
   });

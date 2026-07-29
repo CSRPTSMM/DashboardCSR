@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Dashboard Monitoring Program dan Budget Departemen CSR" />
+    <title>Dashboard Monitoring CSR</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">CSR PROGRAM &amp; BUDGET CONTROL</p>
+        <h1>Dashboard Monitoring CSR</h1>
+      </div>
+      <div class="topbar-actions">
+        <span id="fileStatus" class="file-status">Belum ada file terhubung</span>
+        <button id="refreshBtn" class="button secondary" type="button" hidden>Perbarui data</button>
+        <button id="fileBtn" class="button primary" type="button">Pilih file utama</button>
+        <input id="fallbackFileInput" type="file" accept=".xlsm,.xlsx" hidden />
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section id="welcomePanel" class="welcome-card">
+        <p class="eyebrow">TANPA POWERSHELL • TANPA MICROSOFT ENTRA</p>
+        <h2>Tampilkan data program dan budget langsung di website</h2>
+        <p>Dashboard membaca sheet <strong>Program CSR</strong> dari <strong>Monitoring Departemen CSR.xlsm</strong> yang tersinkron di komputer. Data diproses di browser dan tidak diunggah ke GitHub.</p>
+        <ol class="welcome-steps">
+          <li>Pastikan <strong>Monitoring Departemen CSR.xlsm</strong> tersinkron di folder OneDrive lokal.</li>
+          <li>Setelah mengubah data, cukup simpan workbook utama di Excel.</li>
+          <li>Klik <strong>Pilih file utama</strong>, kemudian pilih <strong>Monitoring Departemen CSR.xlsm</strong>.</li>
+        </ol>
+        <p id="browserNote" class="browser-note"></p>
+      </section>
+
+      <section id="dashboard" hidden>
+        <div id="message" class="message" role="status" hidden></div>
+
+        <section class="filter-card" aria-label="Filter dashboard">
+          <label>Tahun<select id="yearFilter"></select></label>
+          <label>Pilar CSR<select id="pillarFilter"></select></label>
+          <label>Lokasi/Desa<select id="locationFilter"></select></label>
+          <label>PIC<select id="picFilter"></select></label>
+          <label>Status<select id="statusFilter"></select></label>
+          <label class="search-label">Cari Program<input id="searchFilter" type="search" placeholder="Nama program, ID, lokasi, atau PIC" /></label>
+        </section>
+
+        <section class="kpi-grid" aria-label="Ringkasan kinerja">
+              <article class="kpi-card"><span>Jumlah Program</span><strong id="programCount">–</strong><small>Program sesuai filter</small></article>
+              <article class="kpi-card"><span>Total Budget</span><strong id="budgetTotal">–</strong><small>Rencana anggaran program</small></article>
+              <article class="kpi-card"><span>Realisasi</span><strong id="realizationTotal">–</strong><small id="absorptionRate">Serapan –</small></article>
+              <article class="kpi-card alert-card"><span>Program Terlambat</span><strong id="overdueCount">–</strong><small>Memerlukan perhatian</small></article>
+              <article class="kpi-card"><span>Data Terakhir</span><strong id="lastUpdate">–</strong><small id="fileName">File lokal OneDrive</small></article>
+        </section>
+
+        <section class="chart-grid">
+              <article class="panel wide"><div class="panel-heading"><h2>Budget dan Realisasi Berdasarkan Pilar</h2><span>Dalam rupiah</span></div><div class="chart-box"><canvas id="budgetChart"></canvas></div></article>
+              <article class="panel"><div class="panel-heading"><h2>Status Program</h2><span>Komposisi</span></div><div class="chart-box"><canvas id="statusChart"></canvas></div></article>
+              <article class="panel"><div class="panel-heading"><h2>Jumlah Program Berdasarkan Desa/Lokasi</h2><span>10 lokasi terbanyak</span></div><div class="chart-box"><canvas id="locationChart"></canvas></div></article>
+        </section>
+
+        <section class="panel table-panel">
+              <div class="panel-heading"><h2>Detail Program CSR</h2><span id="rowCount">0 data</span></div>
+          <div class="table-wrap">
+            <table>
+                  <thead><tr><th>ID</th><th>Program</th><th>Pilar</th><th>Lokasi/Desa</th><th>PIC</th><th>Budget</th><th>Realisasi</th><th>Serapan</th><th>Status</th><th>Status Waktu</th></tr></thead>
+              <tbody id="detailBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div id="loading" class="loading" hidden><div class="spinner"></div><span>Membaca file Excel…</span></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

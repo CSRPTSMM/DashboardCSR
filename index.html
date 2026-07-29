@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Dashboard Monitoring Program dan Budget Departemen CSR" />
-    <title>Dashboard Monitoring CSR</title>
+    <meta name="description" content="Dashboard pengendalian terpadu Departemen CSR PT SMM" />
+    <title>CSR Control Center</title>
   </head>
   <body>
     <header class="topbar">
       <div>
-        <p class="eyebrow">CSR PROGRAM &amp; BUDGET CONTROL</p>
-        <h1>Dashboard Monitoring CSR</h1>
+        <p class="eyebrow">PT SUPRABARI MAPANINDO MINERAL</p>
+        <h1>CSR Control Center</h1>
       </div>
       <div class="topbar-actions">
         <span id="fileStatus" class="file-status">Belum ada file terhubung</span>
@@ -22,56 +22,113 @@
 
     <main class="page-shell">
       <section id="welcomePanel" class="welcome-card">
-        <p class="eyebrow">TANPA POWERSHELL • TANPA MICROSOFT ENTRA</p>
-        <h2>Tampilkan data program dan budget langsung di website</h2>
-        <p>Dashboard membaca sheet <strong>Program CSR</strong> dari <strong>Monitoring Departemen CSR.xlsm</strong> yang tersinkron di komputer. Data diproses di browser dan tidak diunggah ke GitHub.</p>
-        <ol class="welcome-steps">
-          <li>Pastikan <strong>Monitoring Departemen CSR.xlsm</strong> tersinkron di folder OneDrive lokal.</li>
-          <li>Setelah mengubah data, cukup simpan workbook utama di Excel.</li>
-          <li>Klik <strong>Pilih file utama</strong>, kemudian pilih <strong>Monitoring Departemen CSR.xlsm</strong>.</li>
-        </ol>
+        <p class="eyebrow blue">DASHBOARD TERPADU • DATA DIPROSES LOKAL</p>
+        <h2>Satu dashboard untuk seluruh pengendalian aktivitas CSR</h2>
+        <p>Dashboard membaca workbook <strong>Monitoring Departemen CSR.xlsm</strong> langsung dari komputer. Program, budget, agenda, kasus, follow up, dan pengajuan ditampilkan tanpa mengunggah workbook ke GitHub.</p>
+        <div class="welcome-modules">
+          <span>Program &amp; Budget</span><span>Calendar of Event</span><span>Kasus &amp; Follow Up</span><span>Monitoring Pengajuan</span>
+        </div>
+        <button id="welcomeFileBtn" class="button hero" type="button">Hubungkan workbook utama</button>
         <p id="browserNote" class="browser-note"></p>
       </section>
 
       <section id="dashboard" hidden>
         <div id="message" class="message" role="status" hidden></div>
 
-        <section class="filter-card" aria-label="Filter dashboard">
-          <label>Tahun<select id="yearFilter"></select></label>
-          <label>Pilar CSR<select id="pillarFilter"></select></label>
-          <label>Lokasi/Desa<select id="locationFilter"></select></label>
-          <label>PIC<select id="picFilter"></select></label>
-          <label>Status<select id="statusFilter"></select></label>
-          <label class="search-label">Cari Program<input id="searchFilter" type="search" placeholder="Nama program, ID, lokasi, atau PIC" /></label>
-        </section>
-
-        <section class="kpi-grid" aria-label="Ringkasan kinerja">
-              <article class="kpi-card"><span>Jumlah Program</span><strong id="programCount">–</strong><small>Program sesuai filter</small></article>
-              <article class="kpi-card"><span>Total Budget</span><strong id="budgetTotal">–</strong><small>Rencana anggaran program</small></article>
-              <article class="kpi-card"><span>Realisasi</span><strong id="realizationTotal">–</strong><small id="absorptionRate">Serapan –</small></article>
-              <article class="kpi-card alert-card"><span>Program Terlambat</span><strong id="overdueCount">–</strong><small>Memerlukan perhatian</small></article>
-              <article class="kpi-card"><span>Data Terakhir</span><strong id="lastUpdate">–</strong><small id="fileName">File lokal OneDrive</small></article>
-        </section>
-
-        <section class="chart-grid">
-              <article class="panel wide"><div class="panel-heading"><h2>Budget dan Realisasi Berdasarkan Pilar</h2><span>Dalam rupiah</span></div><div class="chart-box"><canvas id="budgetChart"></canvas></div></article>
-              <article class="panel"><div class="panel-heading"><h2>Status Program</h2><span>Komposisi</span></div><div class="chart-box"><canvas id="statusChart"></canvas></div></article>
-              <article class="panel"><div class="panel-heading"><h2>Jumlah Program Berdasarkan Desa/Lokasi</h2><span>10 lokasi terbanyak</span></div><div class="chart-box"><canvas id="locationChart"></canvas></div></article>
-        </section>
-
-        <section class="panel table-panel">
-              <div class="panel-heading"><h2>Detail Program CSR</h2><span id="rowCount">0 data</span></div>
-          <div class="table-wrap">
-            <table>
-                  <thead><tr><th>ID</th><th>Program</th><th>Pilar</th><th>Lokasi/Desa</th><th>PIC</th><th>Budget</th><th>Realisasi</th><th>Serapan</th><th>Status</th><th>Status Waktu</th></tr></thead>
-              <tbody id="detailBody"></tbody>
-            </table>
+        <section class="control-row">
+          <nav class="tabs" aria-label="Modul dashboard">
+            <button class="tab active" data-view="overview">Overview</button>
+            <button class="tab" data-view="programs">Program &amp; Budget</button>
+            <button class="tab" data-view="events">Calendar of Event</button>
+            <button class="tab" data-view="cases">Kasus &amp; Follow Up</button>
+            <button class="tab" data-view="submissions">Monitoring Pengajuan</button>
+          </nav>
+          <div class="global-filters">
+            <label>Tahun<select id="yearFilter"></select></label>
+            <label>Bulan<select id="monthFilter"></select></label>
+            <label>PIC<select id="picFilter"></select></label>
           </div>
+        </section>
+
+        <section id="overviewView" class="view active">
+          <section class="kpi-grid six">
+            <article class="kpi-card"><span>Jumlah Program</span><strong id="programCount">–</strong><small>Program pada tahun terpilih</small></article>
+            <article class="kpi-card money"><span>Budget Tahunan</span><strong id="budgetTotal">–</strong><small>Master budget final</small></article>
+            <article class="kpi-card money"><span>Realisasi/Deklarasi</span><strong id="realizationTotal">–</strong><small id="absorptionRate">Serapan –</small></article>
+            <article class="kpi-card alert-card"><span>Agenda Perlu Perhatian</span><strong id="eventAttention">–</strong><small>Overdue atau mendesak</small></article>
+            <article class="kpi-card alert-card"><span>Kasus Aktif</span><strong id="activeCaseCount">–</strong><small>Belum closed</small></article>
+            <article class="kpi-card"><span>Data File</span><strong id="lastUpdate">–</strong><small id="fileName">File lokal OneDrive</small></article>
+          </section>
+          <section class="chart-grid">
+            <article class="panel wide"><div class="panel-heading"><div><h2>Serapan Budget per Bulan</h2><span>Budget bulanan dibanding deklarasi</span></div></div><div class="chart-box"><canvas id="monthlyBudgetChart"></canvas></div></article>
+            <article class="panel"><div class="panel-heading"><div><h2>Status Program</h2><span>Komposisi pelaksanaan</span></div></div><div class="chart-box"><canvas id="programStatusChart"></canvas></div></article>
+            <article class="panel"><div class="panel-heading"><div><h2>Pengajuan Belum Deklarasi</h2><span>Kelompok aging</span></div></div><div class="chart-box"><canvas id="agingChart"></canvas></div></article>
+          </section>
+        </section>
+
+        <section id="programsView" class="view">
+          <section class="kpi-grid four">
+            <article class="kpi-card"><span>Total Program</span><strong id="programModuleCount">–</strong><small>Sesuai tahun dan PIC</small></article>
+            <article class="kpi-card money"><span>Total Budget</span><strong id="programBudgetTotal">–</strong><small>Rencana anggaran tahunan</small></article>
+            <article class="kpi-card money"><span>Total Realisasi</span><strong id="programRealizationTotal">–</strong><small id="programAbsorptionRate">Serapan –</small></article>
+            <article class="kpi-card alert-card"><span>Program Perlu Perhatian</span><strong id="programAttentionTotal">–</strong><small>Overdue, mendesak, atau serapan rendah</small></article>
+          </section>
+          <section class="chart-grid">
+            <article class="panel wide"><div class="panel-heading"><div><h2>Budget dan Realisasi per Pilar</h2><span>Perbandingan alokasi dan penggunaan anggaran</span></div></div><div class="chart-box"><canvas id="pillarBudgetChart"></canvas></div></article>
+          </section>
+          <section class="panel table-panel">
+            <div class="panel-heading"><div><h2>Program Memerlukan Perhatian</h2><span>Overdue, mendesak, atau serapan rendah</span></div><span id="programAttentionCount"></span></div>
+            <div class="table-wrap"><table><thead><tr><th>ID</th><th>Program</th><th>Pilar</th><th>PIC</th><th>Budget</th><th>Realisasi</th><th>Serapan</th><th>Status Waktu</th></tr></thead><tbody id="programAttentionBody"></tbody></table></div>
+          </section>
+        </section>
+
+        <section id="eventsView" class="view">
+          <section class="kpi-grid four">
+            <article class="kpi-card"><span>Total Agenda</span><strong id="eventCount">–</strong><small>Sesuai filter</small></article>
+            <article class="kpi-card alert-card"><span>Overdue</span><strong id="eventOverdue">–</strong><small>Deadline terlewati</small></article>
+            <article class="kpi-card warning-card"><span>H-14 Mendatang</span><strong id="eventUpcoming">–</strong><small>Perlu dipersiapkan</small></article>
+            <article class="kpi-card"><span>Selesai</span><strong id="eventDone">–</strong><small>Agenda telah ditutup</small></article>
+          </section>
+          <section class="panel table-panel">
+            <div class="panel-heading"><div><h2>Calendar of Event</h2><span>Agenda, audit, awarding, meeting, dan kegiatan program</span></div><span id="eventRowCount"></span></div>
+            <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Nama Event</th><th>Kategori</th><th>PIC</th><th>Prioritas</th><th>Status</th><th>Progress</th><th>Deadline Dokumen</th><th>Kondisi</th></tr></thead><tbody id="eventBody"></tbody></table></div>
+          </section>
+        </section>
+
+        <section id="casesView" class="view">
+          <section class="kpi-grid four">
+            <article class="kpi-card"><span>Kasus Aktif</span><strong id="caseCount">–</strong><small>Open atau monitoring</small></article>
+            <article class="kpi-card alert-card"><span>Follow Up Kasus Overdue</span><strong id="caseOverdue">–</strong><small>Due follow up terlewati</small></article>
+            <article class="kpi-card"><span>Quick Task Aktif</span><strong id="followupCount">–</strong><small>Belum selesai</small></article>
+            <article class="kpi-card alert-card"><span>Quick Task Overdue</span><strong id="followupOverdue">–</strong><small>Deadline terlewati</small></article>
+          </section>
+          <section class="split-grid">
+            <article class="panel table-panel"><div class="panel-heading"><div><h2>Kasus Berjalan</h2><span>Status dan tindak lanjut berikutnya</span></div></div><div class="table-wrap"><table><thead><tr><th>Kasus</th><th>Lokasi</th><th>PIC</th><th>Risiko</th><th>Status</th><th>Usia</th><th>Follow Up Berikutnya</th><th>Due</th></tr></thead><tbody id="caseBody"></tbody></table></div></article>
+            <article class="panel table-panel"><div class="panel-heading"><div><h2>Follow Up Kecil</h2><span>Quick task yang perlu dikawal</span></div></div><div class="table-wrap"><table><thead><tr><th>Follow Up</th><th>PIC</th><th>Prioritas</th><th>Status</th><th>Deadline</th><th>Sisa Hari</th></tr></thead><tbody id="followupBody"></tbody></table></div></article>
+          </section>
+        </section>
+
+        <section id="submissionsView" class="view">
+          <section class="kpi-grid six">
+            <article class="kpi-card"><span>Total Pengajuan</span><strong id="submissionCount">–</strong><small>Sesuai filter</small></article>
+            <article class="kpi-card money"><span>Nominal Pengajuan</span><strong id="submissionAmount">–</strong><small>Total advance/pengajuan</small></article>
+            <article class="kpi-card alert-card"><span>Belum Deklarasi</span><strong id="undeclaredCount">–</strong><small id="undeclaredAmount">–</small></article>
+            <article class="kpi-card alert-card"><span>Aging &gt; 14 Hari</span><strong id="aging14Count">–</strong><small>Perlu follow up segera</small></article>
+            <article class="kpi-card warning-card"><span>Belum Cair</span><strong id="unpaidCount">–</strong><small>Masih proses pengajuan</small></article>
+            <article class="kpi-card"><span>Sudah Deklarasi</span><strong id="declaredCount">–</strong><small>Administrasi selesai</small></article>
+          </section>
+          <section class="chart-grid">
+            <article class="panel wide"><div class="panel-heading"><div><h2>Pengajuan dan Deklarasi per Bulan</h2><span>Perbandingan nominal transaksi</span></div></div><div class="chart-box"><canvas id="submissionChart"></canvas></div></article>
+          </section>
+          <section class="panel table-panel">
+            <div class="panel-heading"><div><h2>Monitoring Pengajuan Prioritas</h2><span>Belum deklarasi, belum cair, atau aging tinggi</span></div><span id="submissionRowCount"></span></div>
+            <div class="table-wrap"><table><thead><tr><th>No. SAP</th><th>Deskripsi</th><th>PIC</th><th>Nominal</th><th>Tanggal Cair</th><th>Status Pengajuan</th><th>Status Deklarasi</th><th>Aging</th><th>Kategori</th></tr></thead><tbody id="submissionBody"></tbody></table></div>
+          </section>
         </section>
       </section>
     </main>
 
-    <div id="loading" class="loading" hidden><div class="spinner"></div><span>Membaca file Excel…</span></div>
+    <div id="loading" class="loading" hidden><div class="spinner"></div><span>Membaca dan mengolah workbook…</span></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

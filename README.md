@@ -1,4 +1,6 @@
-# Dashboard Performance CSR — OneDrive Lokal Tanpa PowerShell dan Entra
+# CSR Control Center v4 — Dashboard GitHub Terpadu
+
+Tampilan final dipisahkan menjadi lima modul: **Overview**, **Program & Budget**, **Calendar of Event**, **Kasus & Follow Up**, dan **Monitoring Pengajuan**.
 
 Versi ini membaca `Monitoring Departemen CSR.xlsm` secara langsung dari folder OneDrive lokal. Tidak ada file bantu, PowerShell, VBA tambahan, Microsoft Graph, atau Microsoft Entra App Registration.
 
@@ -31,32 +33,27 @@ PowerShell dan akses Microsoft Entra tidak diperlukan.
 3. Tunggu ikon OneDrive menjadi centang hijau.
 4. Jangan mengunggah workbook tersebut ke GitHub.
 
-Dashboard membaca delapan sheet berikut:
+Dashboard membaca enam sumber utama berikut:
 
-- `Kontrol_Budget`;
 - `Program CSR`;
 - `Budget_Tahunan`;
 - `Pengajuan`;
 - `Kasus Berjalan`;
 - `Follow Up Kecil`;
-- `Calendar_Event`;
-- `Awarding`.
+- `Calendar_Event`.
 
 Jika nama atau struktur kolom utama diubah, kode pemetaan perlu disesuaikan.
 
-## 4. KPI yang dihitung
+## 4. Modul dashboard
 
-| Kategori | Target | Aktual |
+| Modul | Informasi utama |
 |---|---|---|
-| Program CSR | Program non-dibatalkan berdasarkan Target Selesai | Status Selesai |
-| Budget | Budget tahunan per bulan | Nominal Deklarasi |
-| Pengajuan | Transaksi non-batal berdasarkan Tanggal Pengajuan | Status Sudah Deklarasi |
-| Kasus | Kasus berdasarkan bulan masuk | Status Closed |
-| Follow Up | Follow up non-dibatalkan berdasarkan deadline | Status Selesai |
-| Event | Event berdasarkan tanggal mulai | Status Selesai |
-| Awarding | Awarding berdasarkan tanggal/deadline | Kelengkapan dokumen 100% |
+| Ringkasan | Program, budget tahunan, deklarasi, serapan bulanan, agenda kritis, kasus aktif |
+| Calendar of Event | Agenda, status, prioritas, progress, deadline dokumen, overdue, dan H-14 |
+| Kasus & Follow Up | Kasus aktif, usia kasus, due follow up, quick task, dan keterlambatan |
+| Pengajuan | Nominal pengajuan, belum cair, belum deklarasi, aging >14 hari, serta tren bulanan |
 
-Capaian dihitung `Aktual ÷ Target` dan dibatasi maksimal 100%. Periode setelah bulan berjalan tidak dimasukkan dalam penilaian.
+Aging dihitung ulang oleh browser berdasarkan tanggal saat dashboard dibuka. Tanggal **Data File** menggunakan waktu terakhir workbook disimpan.
 
 ## 5. Buat repository GitHub
 

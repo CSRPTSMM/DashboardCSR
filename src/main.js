@@ -52,9 +52,9 @@ async function displayFile(file, { persistent = false } = {}) {
   ui.refresh.disabled = true;
   showMessage('');
   try {
-    const { records, metadata } = await loadPerformanceData(file);
+    const { data, metadata } = await loadPerformanceData(file);
     setConnected(file, persistent);
-    setDashboardData(records, metadata);
+    setDashboardData(data, metadata);
     lastFileSignature = fileSignature(file);
     requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
   } catch (error) {
@@ -132,6 +132,7 @@ function startAutoRefresh() {
 }
 
 ui.fileButton.addEventListener('click', connectFileFromButton);
+byId('welcomeFileBtn').addEventListener('click', connectFileFromButton);
 ui.refresh.addEventListener('click', () => refreshFromActiveFile({ force: true }));
 ui.fallbackInput.addEventListener('change', async () => {
   const [file] = ui.fallbackInput.files;
